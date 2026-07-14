@@ -11,9 +11,11 @@ import traceback
 
 
 app = Flask(__name__)
-# ee.Initialize()
-ee.Initialize(project='hirkanyforest')
+# ee.Initialize(project='hirkanyforest')
 
+@app.route("/ping")
+def ping():
+    return{"status":"ok"}
 
 @app.route("/")
 def index():
