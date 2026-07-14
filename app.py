@@ -30,9 +30,9 @@ else:
 def ping():
     return jsonify({"status":"ok"})
 
-@app.route("/ping")
-def ping():
-    return{"status":"ok"}
+# @app.route("/ping")
+# def ping():
+#     return{"status":"ok"}
 
 @app.route("/")
 def index():
