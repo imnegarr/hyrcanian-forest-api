@@ -8,10 +8,24 @@ from code3 import export_ndvi_png, export_geotiff
 from code6 import get_classified_forest_map
 from code5 import get_prediction_map
 import traceback
+import os
+import json
 
 
 app = Flask(__name__)
 # ee.Initialize(project='hirkanyforest')
+project_id = os.environ.get("EE_PROJECT_ID", "hirkanyforest")
+service_account = os.environ.get("EE_SERVICE_ACCOUNT")
+private_key_json = os.environ.get("EE_PRIVATE_KEY_JSON")
+
+if service_account and private_key_json:
+    credentials = ee.ServiceAccountCredentials(
+        service_account,
+        key_data=json.loads(private_key_json)
+    )
+    ee.Initialize(credentials, project=project_id)
+else:
+    ee.Initialize(project=project_id)
 
 @app.route("/ping")
 def ping():
