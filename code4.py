@@ -70,6 +70,29 @@ def get_ndvi_evi_timeseries(mode="monthly", year=2025):
             labels.append(name)
             ndvi_values.append(stats.get("NDVI").getInfo())
             evi_values.append(stats.get("EVI").getInfo())
+    
+    elif mode == "yearly":
+        for y in range(2018, 2026):
+            yearly_collection = (
+                ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+                .filterBounds(roi)
+                .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 20))
+                .filterDate(f"{y}-01-01", f"{y}-12-31")
+            )
+
+            yearly_collection = yearly_collection.map(add_indices)
+            img = yearly_collection.mean()
+
+            stats = img.reduceRegion(
+                ee.Reducer.mean(),
+                roi,
+                scale=20,
+                maxPixels=1e8
+            )
+
+            labels.append(str(y))
+            ndvi_values.append(stats.get("NDVI").getInfo())
+            evi_values.append(stats.get("EVI").getInfo())
 
     return {
         "labels": labels,
