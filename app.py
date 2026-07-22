@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request,Response, jsonify
+from flask import Flask, render_template, request,Response, jsonify,redirect
 import ee
 from code2 import run_forest_model
 from timeseries import get_yearly_timeseries, get_monthly_timeseries, get_seasonal_timeseries
@@ -169,11 +169,7 @@ def fetch_earth_engine_file(url, content_type, filename):
 def download_ndvi_image():
     try:
         url = export_ndvi_png()
-        return fetch_earth_engine_file(
-            url,
-            "image/png",
-            "ndvi_image.png"
-        )
+        return redirect(url, code=302)
     except Exception as e:
         traceback.print_exc()
         return jsonify({
@@ -186,11 +182,7 @@ def download_ndvi_image():
 def download_geotiff():
     try:
         url = export_geotiff()
-        return fetch_earth_engine_file(
-            url,
-            "image/tiff",
-            "hyrcanian_ndvi.tif"
-        )
+        return redirect(url, code=302)
     except Exception as e:
         traceback.print_exc()
         return jsonify({
