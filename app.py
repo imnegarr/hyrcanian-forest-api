@@ -9,6 +9,8 @@ from code6 import get_classified_forest_map
 from code5 import get_prediction_map
 import traceback
 import os
+import requests
+from flask import Response
 
 
 app = Flask(__name__)
@@ -145,22 +147,48 @@ def timeseries_v4():
         "data": data
     })
 
+def fetch_earth_engine_file(url, content_type, filename):
+    response = requests.get(url, timeout=120)
+
+    if response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": f"Earth Engine download failed: {response.status_code}"
+        }), response.status_code
+
+    return Response(
+        response.content,
+        mimetype=content_type,
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
 
 @app.route("/api/download/ndvi-image")
 def download_ndvi_image():
-    return jsonify({
-        "success": True,
-        "url": export_ndvi_png()
-    })
+    try:
+        url = export_ndvi_png()
+        return fetch_earth_engine_file(
+            url,
+            "image/png",
+            "ndvi_image.png"
+        )
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 @app.route("/api/download/geotiff")
 def download_geotiff():
     try:
-        return jsonify({
-            "success": True,
-            "url": export_geotiff()
-        })
+        url = export_geotiff()
+        return fetch_earth_engine_file(
+            url,
+            "image/tiff",
+            "hyrcanian_ndvi.tif"
+        )
     except Exception as e:
         return jsonify({
             "success": False,
