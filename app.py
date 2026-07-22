@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request,Response, jsonify
 import ee
 from code2 import run_forest_model
 from timeseries import get_yearly_timeseries, get_monthly_timeseries, get_seasonal_timeseries
@@ -10,7 +10,6 @@ from code5 import get_prediction_map
 import traceback
 import os
 import requests
-from flask import Response
 
 
 app = Flask(__name__)
@@ -153,7 +152,8 @@ def fetch_earth_engine_file(url, content_type, filename):
     if response.status_code != 200:
         return jsonify({
             "success": False,
-            "error": f"Earth Engine download failed: {response.status_code}"
+            "error": f"Earth Engine download failed: {response.status_code}",
+            "details": response.text[:500]
         }), response.status_code
 
     return Response(
@@ -163,6 +163,7 @@ def fetch_earth_engine_file(url, content_type, filename):
             "Content-Disposition": f"attachment; filename={filename}"
         }
     )
+
 
 @app.route("/api/download/ndvi-image")
 def download_ndvi_image():
@@ -174,6 +175,7 @@ def download_ndvi_image():
             "ndvi_image.png"
         )
     except Exception as e:
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "error": str(e)
@@ -190,6 +192,7 @@ def download_geotiff():
             "hyrcanian_ndvi.tif"
         )
     except Exception as e:
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "error": str(e)
