@@ -150,7 +150,7 @@ def fetch_earth_engine_file(url, content_type, filename):
     response = requests.get(
         url,
         stream=True,
-        timeout=120,
+        timeout=(10, 300),
         headers={
             "User-Agent": "Mozilla/5.0"
         }
@@ -164,11 +164,12 @@ def fetch_earth_engine_file(url, content_type, filename):
         }), response.status_code
 
     return Response(
-        stream_with_context(response.iter_content(chunk_size=8192)),
+        stream_with_context(response.iter_content(chunk_size=4096)),
         content_type=content_type,
         headers={
             "Content-Disposition": f"attachment; filename={filename}"
-        }
+        },
+        direct_passthrough=True
     )
 
 
