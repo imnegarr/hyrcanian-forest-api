@@ -176,10 +176,29 @@ def timeseries_v4():
 @app.route("/api/download/ndvi-image")
 def download_ndvi_image():
     try:
-        return jsonify({
-            "success": True,
-            "url": export_ndvi_png()
-        })
+        url = export_ndvi_png()
+
+        response = requests.get(
+            url,
+            timeout=120,
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
+
+        if response.status_code != 200:
+            return jsonify({
+                "success": False,
+                "error": f"Earth Engine download failed: {response.status_code}",
+                "details": response.text[:300]
+            }), response.status_code
+
+        return Response(
+            response.content,
+            mimetype="image/png",
+            headers={
+                "Content-Disposition": "attachment; filename=ndvi_image.png"
+            }
+        )
+
     except Exception as e:
         traceback.print_exc()
         return jsonify({

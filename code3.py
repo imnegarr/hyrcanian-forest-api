@@ -20,7 +20,7 @@ def export_ndvi_png():
         palette=["#c0392b", "#f1c40f", "#27ae60"]
     ).getThumbURL({
         "region": roi,
-        "dimensions": 1000,
+        "dimensions": 400,
         "format": "png"
     })
 
