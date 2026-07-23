@@ -172,14 +172,14 @@ def fetch_earth_engine_file(url, content_type, filename):
     )
 
 
-@app.route("/api/download/geotiff")
-def download_geotiff():
+@app.route("/api/download/ndvi-image")
+def download_ndvi_image():
     try:
-        url = export_geotiff()
+        url = export_ndvi_png()
         return stream_earth_engine_file(
             url,
-            "image/tiff",
-            "hyrcanian_ndvi.tif"
+            "image/png",
+            "ndvi_image.png"
         )
     except Exception as e:
         traceback.print_exc()
