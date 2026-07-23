@@ -146,42 +146,40 @@ def timeseries_v4():
         "data": data
     })
 
-def fetch_earth_engine_file(url, content_type, filename):
-    response = requests.get(
-        url,
-        stream=True,
-        timeout=(10, 300),
-        headers={
-            "User-Agent": "Mozilla/5.0"
-        }
-    )
+# def fetch_earth_engine_file(url, content_type, filename):
+#     response = requests.get(
+#         url,
+#         stream=True,
+#         timeout=(10, 300),
+#         headers={
+#             "User-Agent": "Mozilla/5.0"
+#         }
+#     )
 
-    if response.status_code != 200:
-        return jsonify({
-            "success": False,
-            "error": f"Earth Engine download failed: {response.status_code}",
-            "details": response.text[:500]
-        }), response.status_code
+#     if response.status_code != 200:
+#         return jsonify({
+#             "success": False,
+#             "error": f"Earth Engine download failed: {response.status_code}",
+#             "details": response.text[:500]
+#         }), response.status_code
 
-    return Response(
-        stream_with_context(response.iter_content(chunk_size=4096)),
-        content_type=content_type,
-        headers={
-            "Content-Disposition": f"attachment; filename={filename}"
-        },
-        direct_passthrough=True
-    )
+#     return Response(
+#         stream_with_context(response.iter_content(chunk_size=4096)),
+#         content_type=content_type,
+#         headers={
+#             "Content-Disposition": f"attachment; filename={filename}"
+#         },
+#         direct_passthrough=True
+#     )
 
 
 @app.route("/api/download/ndvi-image")
 def download_ndvi_image():
     try:
-        url = export_ndvi_png()
-        return fetch_earth_engine_file(
-            url,
-            "image/png",
-            "ndvi_image.png"
-        )
+        return jsonify({
+            "success": True,
+            "url": export_ndvi_png()
+        })
     except Exception as e:
         traceback.print_exc()
         return jsonify({
@@ -193,12 +191,10 @@ def download_ndvi_image():
 @app.route("/api/download/geotiff")
 def download_geotiff():
     try:
-        url = export_geotiff()
-        return fetch_earth_engine_file(
-            url,
-            "image/tiff",
-            "hyrcanian_ndvi.tif"
-        )
+        return jsonify({
+            "success": True,
+            "url": export_geotiff()
+        })
     except Exception as e:
         traceback.print_exc()
         return jsonify({
