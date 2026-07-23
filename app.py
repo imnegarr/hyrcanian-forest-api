@@ -176,7 +176,7 @@ def fetch_earth_engine_file(url, content_type, filename):
 def download_ndvi_image():
     try:
         url = export_ndvi_png()
-        return stream_earth_engine_file(
+        return fetch_earth_engine_file(
             url,
             "image/png",
             "ndvi_image.png"
@@ -193,7 +193,7 @@ def download_ndvi_image():
 def download_geotiff():
     try:
         url = export_geotiff()
-        return stream_earth_engine_file(
+        return fetch_earth_engine_file(
             url,
             "image/tiff",
             "hyrcanian_ndvi.tif"
