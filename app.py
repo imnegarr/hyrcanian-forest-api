@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request,Response, jsonify,redirect
+from flask import Flask, render_template, request,Response, jsonify,redirect, stream_with_context
 import ee
 from code2 import run_forest_model
 from timeseries import get_yearly_timeseries, get_monthly_timeseries, get_seasonal_timeseries
@@ -147,7 +147,14 @@ def timeseries_v4():
     })
 
 def fetch_earth_engine_file(url, content_type, filename):
-    response = requests.get(url, timeout=120)
+    response = requests.get(
+        url,
+        stream=True,
+        timeout=120,
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        }
+    )
 
     if response.status_code != 200:
         return jsonify({
@@ -157,19 +164,23 @@ def fetch_earth_engine_file(url, content_type, filename):
         }), response.status_code
 
     return Response(
-        response.content,
-        mimetype=content_type,
+        stream_with_context(response.iter_content(chunk_size=8192)),
+        content_type=content_type,
         headers={
             "Content-Disposition": f"attachment; filename={filename}"
         }
     )
 
 
-@app.route("/api/download/ndvi-image")
-def download_ndvi_image():
+@app.route("/api/download/geotiff")
+def download_geotiff():
     try:
-        url = export_ndvi_png()
-        return redirect(url, code=302)
+        url = export_geotiff()
+        return stream_earth_engine_file(
+            url,
+            "image/tiff",
+            "hyrcanian_ndvi.tif"
+        )
     except Exception as e:
         traceback.print_exc()
         return jsonify({
@@ -182,7 +193,11 @@ def download_ndvi_image():
 def download_geotiff():
     try:
         url = export_geotiff()
-        return redirect(url, code=302)
+        return stream_earth_engine_file(
+            url,
+            "image/tiff",
+            "hyrcanian_ndvi.tif"
+        )
     except Exception as e:
         traceback.print_exc()
         return jsonify({
